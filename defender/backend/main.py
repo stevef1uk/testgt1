@@ -2,10 +2,11 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from typing import Dict, Tuple
+import uuid
 
 app = FastAPI()
 
-# In‑memory high score store: user -> (score, timestamp)
+# In‑memory high score store: session_id -> (score, timestamp)
 high_score_store: Dict[str, Tuple[int, int]] = {}
 
 # Mount static files (frontend assets)
@@ -24,36 +25,117 @@ async def get_root():
     return FileResponse("defender/frontend/index.html")
 
 
+def _get_or_create_session_id(request: Request) -> str:
+    """
+    Retrieve the session_id cookie from the request, or create a new one.
+    """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        session_id = str(uuid.uuid4())
+    return session_id
+
+
 @app.get("/score")
 async def get_score():
     """
-    Return all high scores as a JSON object:
+    Return all high scores as a JSON object keyed by session_id.
+    """
+    return JSONResponse(
+        {
+            session_id: {"score": score, "timestamp": timestamp}
+            for session_id, (score, timestamp) in high_score_store.items()
+        }
+    )
+
+
+@app.post("/score")
+async def post_score(request: Request):
+    """
+    Accept a JSON payload with `score` (int) and `timestamp` (int).
+    Store the score only if it is higher than any previous score for that session.
+    Returns a JSON response with status "ok". Sets a `session_id` cookie if one was created.
+    """
+    payload = await request.json()
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+    score = payload.get("score")
+    timestamp = payload.get("timestamp")
+    if not isinstance(score, int) or not isinstance(timestamp, int):
+        raise HTTPException(status_code=400, detail="Missing or invalid fields")
+    session_id = _get_or_create_session_id(request)
+    prev = high_score_store.get(session_id)
+    if prev is None or score > prev[0]:
+        high_score_store[session_id] = (score, timestamp)
+    response = JSONResponse({"status": "ok"})
+    if "session_id" not in request.cookies:
+        response.set_cookie(key="session_id", value=session_id)
+    return response
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from typing import Dict, Tuple
+import uuid
+
+app = FastAPI()
+
+# In‑memory high score store: session_id -> (score, timestamp)
+high_score_store: Dict[str, Tuple[int, int]] = {}
+
+# Mount static files (frontend assets)
+app.mount(
+    "/static",
+    StaticFiles(directory="defender/frontend", html=True),
+    name="static",
+)
+
+
+@app.get("/")
+async def get_root():
+    """
+    Serve the main HTML page.
+    """
+    return FileResponse("defender/frontend/index.html")
+
+
+def _get_or_create_session_id(request: Request) -> str:
+    """
+    Retrieve the session_id cookie from the request, or create a new one.
+    """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        session_id = str(uuid.uuid4())
+    return session_id
+
+
+@app.get("/score")
+async def get_score():
+    """
+    Return all high scores as a JSON object keyed by session_id.
     """
     return {
-        user: {"score": score, "timestamp": timestamp}
-        for user, (score, timestamp) in high_score_store.items()
+        session_id: {"score": score, "timestamp": timestamp}
+        for session_id, (score, timestamp) in high_score_store.items()
     }
 
 
 @app.post("/score")
 async def post_score(request: Request):
     """
-    Accept a JSON payload:
-    Store the score only if it is higher than any previous score for that user.
+    Accept a JSON payload with `score` (int) and `timestamp` (int).
+    Store the score only if it is higher than any previous score for that session.
+    Returns a JSON response with status "ok". Sets a `session_id` cookie if one was created.
     """
-    data = await request.json()
-    user = data.get("user")
-    score = data.get("score")
-    timestamp = data.get("timestamp")
-
-    if not isinstance(user, str) or not isinstance(score, int) or not isinstance(timestamp, int):
+    payload = await request.json()
+    score = payload.get("score")
+    timestamp = payload.get("timestamp")
+    if not isinstance(score, int) or not isinstance(timestamp, int):
         raise HTTPException(status_code=400, detail="Invalid payload")
-
-    prev = high_score_store.get(user)
-    if prev is None or score > prev[0]:
-        high_score_store[user] = (score, timestamp)
-
-    return JSONResponse(content={"status": "ok"})
+    session_id = _get_or_create_session_id(request)
+    existing = high_score_store.get(session_id)
+    if existing is None or score > existing[0]:
+        high_score_store[session_id] = (score, timestamp)
+    response = JSONResponse(content={"status": "ok"})
+    response.set_cookie(key="session_id", value=session_id)
+    return response
 
 
 # The FastAPI app instance is exported as `app` for the server entrypoint.
