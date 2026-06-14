@@ -40,12 +40,10 @@ async def get_score():
     """
     Return all high scores as a JSON object keyed by session_id.
     """
-    return JSONResponse(
-        {
-            session_id: {"score": score, "timestamp": timestamp}
-            for session_id, (score, timestamp) in high_score_store.items()
-        }
-    )
+    return {
+        session_id: {"score": score, "timestamp": timestamp}
+        for session_id, (score, timestamp) in high_score_store.items()
+    }
 
 
 @app.post("/score")
@@ -56,19 +54,16 @@ async def post_score(request: Request):
     Returns a JSON response with status "ok". Sets a `session_id` cookie if one was created.
     """
     payload = await request.json()
-    if not isinstance(payload, dict):
-        raise HTTPException(status_code=400, detail="Invalid JSON")
     score = payload.get("score")
     timestamp = payload.get("timestamp")
     if not isinstance(score, int) or not isinstance(timestamp, int):
-        raise HTTPException(status_code=400, detail="Missing or invalid fields")
+        raise HTTPException(status_code=400, detail="Invalid payload")
     session_id = _get_or_create_session_id(request)
-    prev = high_score_store.get(session_id)
-    if prev is None or score > prev[0]:
+    existing = high_score_store.get(session_id)
+    if existing is None or score > existing[0]:
         high_score_store[session_id] = (score, timestamp)
-    response = JSONResponse({"status": "ok"})
-    if "session_id" not in request.cookies:
-        response.set_cookie(key="session_id", value=session_id)
+    response = JSONResponse(content={"status": "ok"})
+    response.set_cookie(key="session_id", value=session_id)
     return response
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
