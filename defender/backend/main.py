@@ -37,9 +37,9 @@ def post_score(data: dict):
 
 
 app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+
+@app.get("/")
 def get_root():
     """Return the index.html as HTML."""
     from fastapi.responses import FileResponse
     return FileResponse(os.path.join(frontend_dir, "index.html"))
-
-app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="root")

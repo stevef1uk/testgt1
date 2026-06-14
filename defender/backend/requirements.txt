@@ -1,3 +1,5 @@
+# Backend requirements for the FastAPI service.
+# Matches architecture specification.
 fastapi
 uvicorn[standard]
 httpx
