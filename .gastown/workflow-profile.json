@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "generated_at": "2026-06-14T07:56:28Z",
+  "source": "llm",
+  "confidence": "high",
+  "validation": {
+    "layout_root": "defender",
+    "bead_title_contains": "Implement defender/",
+    "unittest_module": "",
+    "qa_verify_command": "cd defender/backend && pytest -q",
+    "test_runner": "pytest",
+    "required_files": [
+      "defender/backend/main.py",
+      "defender/backend/requirements.txt",
+      "defender/backend/tests/test_api.py",
+      "defender/backend/tests/test_score.py",
+      "defender/frontend/index.html",
+      "defender/frontend/style.css",
+      "defender/frontend/game/input.js",
+      "defender/frontend/game/player.js",
+      "defender/frontend/game/bullets.js",
+      "defender/frontend/game/enemies.js",
+      "defender/frontend/game/humanoids.js",
+      "defender/frontend/game/world.js",
+      "defender/frontend/game/hud.js",
+      "defender/frontend/game/renderer.js",
+      "defender/frontend/game/main.js",
+      "defender/README.md"
+    ],
+    "delivery_phases": [
+      {
+        "id": "backend-setup",
+        "title": "Backend implementation and tests",
+        "required_files": [
+          "defender/backend/main.py",
+          "defender/backend/requirements.txt",
+          "defender/backend/tests/test_api.py",
+          "defender/backend/tests/test_score.py"
+        ],
+        "qa_verify_command": "cd defender/backend && pytest -q",
+        "spec_focus": "Implement FastAPI app, static file serving, in‑memory high‑score endpoint, and full pytest suite."
+      },
+      {
+        "id": "frontend-static",
+        "title": "Frontend static assets",
+        "required_files": [
+          "defender/frontend/index.html",
+          "defender/frontend/style.css"
+        ],
+        "qa_verify_command": "test -f defender/frontend/index.html && test -f defender/frontend/style.css",
+        "depends_on": [
+          "backend-setup"
+        ],
+        "spec_focus": "Provide a full HTML shell with canvas and CSS styling matching the neon aesthetic."
+      },
+      {
+        "id": "frontend-game-modules",
+        "title": "Frontend game modules",
+        "required_files": [
+          "defender/frontend/game/input.js",
+          "defender/frontend/game/player.js",
+          "defender/frontend/game/bullets.js",
+          "defender/frontend/game/enemies.js",
+          "defender/frontend/game/humanoids.js",
+          "defender/frontend/game/world.js",
+          "defender/frontend/game/hud.js",
+          "defender/frontend/game/renderer.js"
+        ],
+        "qa_verify_command": "for f in defender/frontend/game/*.js; do test -f $f; done",
+        "depends_on": [
+          "frontend-static"
+        ],
+        "spec_focus": "Implement keyboard handling, entity logic, world scrolling, rendering, HUD and minimap with neon style."
+      },
+      {
+        "id": "frontend-main",
+        "title": "Frontend main orchestrator",
+        "required_files": [
+          "defender/frontend/game/main.js"
+        ],
+        "qa_verify_command": "test -f defender/frontend/game/main.js",
+        "depends_on": [
+          "frontend-game-modules"
+        ],
+        "spec_focus": "Wire all game modules together, run the requestAnimationFrame loop, manage screen FSM and wave progression."
+      },
+      {
+        "id": "documentation",
+        "title": "Project documentation",
+        "required_files": [
+          "defender/README.md"
+        ],
+        "qa_verify_command": "cat defender/README.md",
+        "depends_on": [
+          "frontend-main"
+        ],
+        "spec_focus": "Explain installation, how to run the FastAPI server, open the game in a browser, and list controls."
+      }
+    ],
+    "active_phase_id": "backend-setup",
+    "spec_summary": "The Defender Clone project delivers a browser‑based arcade shooter reminiscent of the classic 1981 Defender game. The stack consists of a Python 3.11+ FastAPI backend (served by Uvicorn) and a vanilla JavaScript/HTML5 Canvas frontend. All source code lives under the `defender/` directory. The backend provides three routes: a root GET that serves the HTML shell, a static file handler for the frontend assets, and a pair of `/score` endpoints that store a per‑session high score in memory. The frontend implements a full game loop with a scrolling world, player ship, enemies, humanoids, bullets, HUD and minimap. Controls are keyboard‑only (A/D or arrows, W/S, Space, Enter, P, Escape). Scoring follows a detailed table, and the high score can be posted to the backend. The implementation must be fully functional – no placeholder stubs. Unit tests are written with pytest and use FastAPI’s TestClient to verify static serving, score handling, and high‑score logic. The test suite is run with `cd defender/backend && pytest -q`. The README explains how to install dependencies (`pip install -r backend/requirements.txt`), start the server (`uvicorn main:app --host 0.0.0.0 --port 8000 --reload`), and play the game. The project is split into five delivery phases: backend implementation, static HTML/CSS, core JavaScript game modules, the main orchestration script, and documentation. Each phase has a targeted QA command that validates the presence and basic correctness of its files before moving on. The final deliverable is a playable game that runs at 60 fps, with all backend tests passing and no stub files remaining.",
+    "min_architecture_bytes": 3200,
+    "min_plan_bytes": 800,
+    "min_implementation_file_bytes": 400,
+    "min_substantive_lines": 3,
+    "python_venv_dir": ""
+  }
+}
