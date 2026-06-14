@@ -10,11 +10,16 @@ app = FastAPI()
 high_score_store: Dict[str, Tuple[int, int]] = {}
 
 # Mount static files (frontend assets)
-app.mount(
-    "/static",
-    StaticFiles(directory="defender/frontend", html=True),
-    name="static",
-)
+# Attempt to mount static files; ignore if the directory does not exist (will be provided later)
+try:
+    app.mount(
+        "/static",
+        StaticFiles(directory="defender/frontend", html=True),
+        name="static",
+    )
+except RuntimeError:
+    # Directory missing – continue without static file serving for now.
+    pass
 
 
 @app.get("/")
