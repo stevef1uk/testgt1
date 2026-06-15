@@ -1,1 +1,18 @@
-<!DOCTYPE html><html><body><canvas id='game-canvas'></canvas></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Space Shooter</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <canvas id="game-canvas" width="800" height="600"></canvas>
+
+  <!-- Load game modules in order -->
+  <script type="module" src="/static/game/input.js"></script>
+  <script type="module" src="/static/game/player.js"></script>
+  <script type="module" src="/static/game/enemy.js"></script>
+  <script type="module" src="/static/game/renderer.js"></script>
+  <script type="module" src="/static/game/main.js"></script>
+</body>
+</html>
