@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Defender Service</title>
+    <style>
+        /* Simple styling for canvas and score display */
+        #gameCanvas {
+            border: 1px solid #333;
+            display: block;
+            margin: 10px auto;
+        }
+        #score {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>Defender Service</h1>
+    <canvas id="gameCanvas" width="400" height="300"></canvas>
     <p id="score">Loading score...</p>
     <script src="/static/app.js"></script>
 </body>
