@@ -1,4 +1,39 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, JSONResponse
+from pydantic import BaseModel
+
+app = FastAPI()
+
+# In-memory store for score
+_score = {"value": 0}
+
+@app.get("/", response_class=HTMLResponse)
+def root():
+    """Root endpoint returning simple HTML page."""
+    html_content = """
+    <html>
+        <head><title>Polecat Defender</title></head>
+        <body>
+            <h1>Welcome to Polecat Defender</h1>
+            <p>Use the /score endpoint to get or set the score.</p>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content, status_code=200)
+
+class ScoreUpdate(BaseModel):
+    value: int
+
+@app.get("/score", response_class=JSONResponse)
+def get_score():
+    """Return the current score."""
+    return JSONResponse(content=_score, status_code=200)
+
+@app.post("/score", response_class=JSONResponse)
+def update_score(update: ScoreUpdate):
+    """Update the score with the provided value."""
+    _score["value"] = update.value
+    return JSONResponse(content=_score, status_code=200), Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import os

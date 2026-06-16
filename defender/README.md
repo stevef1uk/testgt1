@@ -45,6 +45,13 @@ uvicorn defender.backend.main:app --reload --host 0.0.0.0 --port 8000
 
 The application will be accessible at `http://localhost:8000`.
 
+## Controls
+
+- **Stop**: Press `Ctrl+C` in the terminal where the server is running.
+- **Reload**: The `--reload` flag automatically restarts the server when source files change.
+- **Log level**: Adjust with `--log-level <level>` (e.g., `info`, `debug`).
+- **Graceful shutdown**: Send a `SIGTERM` signal; `uvicorn` will finish active requests before exiting.
+
 ## API Endpoints
 
 The application exposes the following API endpoints:
