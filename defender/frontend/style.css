@@ -1,0 +1,29 @@
+/* defender/frontend/style.css */
+/* Basic layout for the game frontend. Matches architecture expectations. */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;          /* black background for neon effect */
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+/* Canvas that hosts the game */
+#gameCanvas {
+  display: block;            /* remove inline spacing */
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Optional HUD container (if used in HTML) */
+#hudContainer {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #00ff00;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  pointer-events: none;
+}

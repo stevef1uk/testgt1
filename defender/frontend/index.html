@@ -1,12 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Defender Service</title>
+  <meta charset="UTF-8">
+  <title>Neon Game</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Defender Service</h1>
-    <p id="score">Loading score...</p>
-    <script src="/static/app.js"></script>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Game modules -->
+  <script src="game/renderer.js"></script>
+  <script src="game/hud.js"></script>
+  <script src="game/main.js"></script>
+
+  <script>
+    // Start the game once all scripts are loaded.
+    window.addEventListener('load', () => {
+      if (window.GameMain && typeof window.GameMain.start === 'function') {
+        window.GameMain.start();
+      } else {
+        console.error('GameMain.start not available.');
+      }
+    });
+  </script>
 </body>
 </html>
