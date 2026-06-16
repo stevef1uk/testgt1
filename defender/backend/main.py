@@ -6,7 +6,7 @@ import os
 app = FastAPI()
 
 # Mount static files directory (serves files from defender/frontend)
-app.mount("/static", StaticFiles(directory="defender/frontend", html=True), name="static")
+app.mount("/static", StaticFiles(directory="defender/web", html=True), name="static")
 
 # In‑memory high‑score store
 _high_score = 0
