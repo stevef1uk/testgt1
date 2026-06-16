@@ -1,26 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Defender Game</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
-
-  <!-- Game scripts -->
-  <script src="game/renderer.js"></script>
-  <script src="game/hud.js"></script>
-  <script src="game/main.js"></script>
-  <script>
-    // Start the game once everything is loaded
-    window.addEventListener('load', () => {
-      if (window.GameMain && typeof window.GameMain.start === 'function') {
-        window.GameMain.start();
-      } else {
-        console.warn('GameMain.start not available');
-      }
-    });
-  </script>
+    <div id="game-container">
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        <div id="hud"></div>
+    </div>
+    <script src="game/renderer.js"></script>
+    <script src="game/hud.js"></script>
+    <script src="game/main.js"></script>
 </body>
 </html>
