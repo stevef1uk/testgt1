@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Galactic Defender</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <canvas id="game-canvas" width="800" height="600"></canvas>
+
+  <script type="module">
+    import { initializeInput } from './game/input.js';
+    import { initializeHUD } from './game/hud.js';
+    import { initializePlayer } from './game/player.js';
+    import { render } from './game/renderer.js';
+
+    // Initialize game state
+    const gameState = {
+      player: {
+        ship: { x: 400, y: 550, width: 20, height: 20 }
+      },
+      enemies: [],
+      bullets: []
+    };
+
+    // Initialize game components
+    initializeInput(gameState);
+    initializeHUD(gameState);
+    initializePlayer(gameState);
+
+    // Game loop
+    function gameLoop() {
+      // Update game state
+      //...
+
+      // Render game
+      render(gameState);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start game loop
+    gameLoop();
+  </script>
+</body>
+</html>
