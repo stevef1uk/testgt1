@@ -1,71 +1,68 @@
-// Player class for the game frontend
-/* Player implementation */
 class Player {
-    constructor(x = 0, y = 0) {
-        // Position
+    constructor(x, y) {
         this.x = x;
         this.y = y;
-        // Velocity
-        this.vx = 0;
-        this.vy = 0;
-        // Lives and bombs
-        this.lives = 3;
-        this.bombs = 2;
-        // Fire cooldown timer (seconds)
-        this.fireCooldown = 0;
+        this.width = 40;
+        this.height = 40;
+        this.speed = 200; // pixels per second
+
+        // Gameplay state
+        this.lives = 3;          // player lives
+        this.bombs = 1;          // smart bombs available
+        this.fireCooldown = 0;   // time until next shot can be fired
+        this.fireRate = 0.25;    // seconds between shots
     }
 
-    // Update position based on velocity and time delta
-    update(dt) {
-        this.x += this.vx * dt;
-        this.y += this.vy * dt;
+    // Update player position based on input (direction vector) and handle bounds
+    update(dt, input) {
+        const dir = input.getDirection();
+        this.x += dir.dx * this.speed * dt;
+        this.y += dir.dy * this.speed * dt;
+
+        // Keep player within canvas bounds if canvas is defined
+        if (typeof canvas !== 'undefined') {
+            const maxX = canvas.width - this.width;
+            const maxY = canvas.height - this.height;
+            this.x = Math.max(0, Math.min(this.x, maxX));
+            this.y = Math.max(0, Math.min(this.y, maxY));
+        }
+
+        // Reduce fire cooldown timer
         if (this.fireCooldown > 0) {
             this.fireCooldown -= dt;
         }
     }
 
-    // Set the player's velocity
-    setVelocity(vx, vy) {
-        this.vx = vx;
-        this.vy = vy;
-    }
-
-    // Attempt to fire a bullet; returns true if a shot is fired
-    fire() {
+    // Fire a bullet if cooldown allows
+    fire(bulletPool) {
         if (this.fireCooldown <= 0) {
-            this.fireCooldown = 0.2; // seconds between shots
-            return true;
+            // Spawn a bullet from the center top of the player ship
+            bulletPool.spawn(this.x + this.width / 2, this.y, 0, -400);
+            this.fireCooldown = this.fireRate;
         }
-        return false;
     }
 
-    // Use a smart bomb; returns true if a bomb was available
-    bomb() {
+    // Deploy a smart bomb to clear enemies
+    bomb(enemies) {
         if (this.bombs > 0) {
+            enemies.forEach(e => {
+                if (typeof e.destroy === 'function') {
+                    e.destroy();
+                }
+            });
             this.bombs--;
-            return true;
         }
-        return false;
     }
 
-    // Called when the player takes damage
+    // Take damage, decrease lives
     hit() {
-        if (this.lives > 0) {
-            this.lives--;
+        this.lives--;
+        if (this.lives <= 0) {
+            this.lives = 0;
+            // Further death handling can be managed elsewhere
         }
     }
-
-    // Reset player state (e.g., after losing a life)
-    reset(x = 0, y = 0) {
-        this.x = x;
-        this.y = y;
-        this.vx = 0;
-        this.vy = 0;
-        this.fireCooldown = 0;
-    }
 }
 
-// Export for Node.js environments; browsers will ignore this block
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Player;
-}
+// Export Player to the global namespace for other scripts
+window.Player = Player;
