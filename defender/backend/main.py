@@ -7,10 +7,12 @@ import os
 app = FastAPI()
 
 # Mount static files (serves files from defender/web)
-app.mount("/static", StaticFiles(directory="defender/web", html=True), name="static")
+# Serve static files from the web directory relative to this file
+static_dir = os.path.join(os.path.dirname(__file__), "..", "web")
+app.mount("/static", StaticFiles(directory=static_dir, html=True), name="static")
 
 # In‑memory score store
-_score = {"value": 0}
+_score = {"score": 0}
 
 class ScoreUpdate(BaseModel):
     value: int
@@ -39,5 +41,5 @@ def get_score():
 @app.post("/score", response_class=JSONResponse)
 def update_score(update: ScoreUpdate):
     """Update the score."""
-    _score["value"] = update.value
+    _score["score"] = update.value
     return JSONResponse(content=_score, status_code=200)
