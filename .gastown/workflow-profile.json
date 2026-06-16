@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-06-16T08:29:13Z",
+  "generated_at": "2026-06-16T20:22:33Z",
   "source": "llm",
   "confidence": "high",
   "validation": {
@@ -12,82 +12,82 @@
     "required_files": [
       "defender/backend/main.py",
       "defender/backend/requirements.txt",
-      "defender/README.md",
       "defender/backend/tests/test_api.py",
       "defender/backend/tests/test_score.py",
       "defender/frontend/index.html",
       "defender/frontend/style.css",
-      "defender/frontend/game/main.js",
-      "defender/frontend/game/renderer.js",
-      "defender/frontend/game/hud.js",
       "defender/frontend/game/input.js",
+      "defender/frontend/game/renderer.js",
+      "defender/frontend/game/main.js",
       "defender/frontend/game/player.js",
       "defender/frontend/game/bullets.js",
       "defender/frontend/game/enemies.js",
       "defender/frontend/game/humanoids.js",
-      "defender/frontend/game/world.js"
+      "defender/frontend/game/world.js",
+      "defender/frontend/game/hud.js",
+      "defender/README.md"
     ],
     "delivery_phases": [
       {
         "id": "backend-setup",
-        "title": "Backend core implementation",
+        "title": "Backend Setup and Basic Routes",
         "required_files": [
           "defender/backend/main.py",
           "defender/backend/requirements.txt",
-          "defender/README.md"
+          "defender/backend/tests/test_api.py"
         ],
-        "qa_verify_command": "python -m py_compile defender/backend/main.py",
-        "spec_focus": "Implement FastAPI app, static file serving, in‑memory high‑score store and declare dependencies."
+        "qa_verify_command": "cd defender/backend && pytest -q -k test_api.py",
+        "spec_focus": "Create FastAPI app, serve static frontend, implement GET / route and basic static file handling."
       },
       {
-        "id": "backend-tests",
-        "title": "Backend unit tests",
+        "id": "backend-score",
+        "title": "Backend High Score API",
         "required_files": [
-          "defender/backend/tests/test_api.py",
           "defender/backend/tests/test_score.py"
         ],
-        "qa_verify_command": "cd defender/backend && pytest -q",
+        "qa_verify_command": "cd defender/backend && pytest -q -k test_score.py",
         "depends_on": [
           "backend-setup"
         ],
-        "spec_focus": "Provide pytest coverage for GET /, static routes, score POST/GET and high‑score logic."
+        "spec_focus": "Add POST /score and GET /score endpoints with in‑memory high‑score storage, validation, and update logic."
       },
       {
-        "id": "frontend-structure",
-        "title": "Frontend HTML/CSS and core rendering",
+        "id": "frontend-setup",
+        "title": "Frontend Static Assets and Initial Game Loop",
         "required_files": [
           "defender/frontend/index.html",
           "defender/frontend/style.css",
-          "defender/frontend/game/main.js",
+          "defender/frontend/game/input.js",
           "defender/frontend/game/renderer.js",
-          "defender/frontend/game/hud.js"
+          "defender/frontend/game/main.js"
         ],
-        "qa_verify_command": "echo Frontend structure phase – manual visual verification required",
+        "qa_verify_command": "echo Frontend assets assembled",
         "depends_on": [
-          "backend-setup"
+          "backend-score"
         ],
-        "spec_focus": "Create full‑screen canvas page, load styles, wire main loop, renderer and HUD with neon theme."
+        "spec_focus": "Build HTML canvas page, load CSS and core JS modules, implement input handling and a minimal requestAnimationFrame loop."
       },
       {
-        "id": "frontend-modules",
-        "title": "Frontend game modules",
+        "id": "final-packaging",
+        "title": "Full Game Implementation and End‑to‑End",
         "required_files": [
-          "defender/frontend/game/input.js",
           "defender/frontend/game/player.js",
           "defender/frontend/game/bullets.js",
           "defender/frontend/game/enemies.js",
           "defender/frontend/game/humanoids.js",
-          "defender/frontend/game/world.js"
+          "defender/frontend/game/world.js",
+          "defender/frontend/game/hud.js",
+          "defender/README.md"
         ],
-        "qa_verify_command": "echo Frontend modules phase – manual interaction testing required",
+        "qa_verify_command": "cd defender/backend && pytest -q",
         "depends_on": [
-          "frontend-structure"
+          "frontend-setup"
         ],
-        "spec_focus": "Implement input handling, ship behavior, bullet management, enemy spawning, humanoid abduction, world scrolling and wrap."
+        "spec_focus": "Complete gameplay logic: ship movement, firing, enemy spawning, humanoid abduction/rescue, scoring, HUD, wave progression, and game‑over flow."
       }
     ],
-    "active_phase_id": "frontend-modules",
-    "spec_summary": "The Defender Clone project delivers a browser‑based arcade shooter built with a Python FastAPI backend and vanilla JavaScript frontend. All source files live under the `defender/` directory. The backend (`defender/backend/`) provides a minimal FastAPI app that serves the static frontend, handles an in‑memory high‑score endpoint (`/score`), and includes a `requirements.txt` listing fastapi, uvicorn, httpx and pytest. Two pytest suites (`test_api.py` and `test_score.py`) verify that the root route returns HTML containing a canvas element, that static files are served correctly, and that the score API validates input, stores the highest score, and returns defaults when empty. The frontend (`defender/frontend/`) consists of an `index.html` page with a fullscreen canvas, a dark neon `style.css`, and a `game/` folder containing modular JavaScript files. Key modules are: `input.js` for keyboard state, `player.js` for ship movement and smart‑bomb handling, `bullets.js` for projectile lifecycle, `enemies.js` for wave‑based spawning, `humanoids.js` for abductable targets, `world.js` for a scrolling wrap‑around world, `hud.js` for score/lives display, `renderer.js` for neon‑styled drawing, and `main.js` that glues everything together in a requestAnimationFrame loop with a finite‑state machine for title, gameplay, wave intro, death, and game‑over screens. Scoring follows the table in the specification, and lives and bombs are updated accordingly. The project includes a `README.md` with installation steps (`pip install -r backend/requirements.txt`), the command to launch the server (`uvicorn main:app --host 0.0.0.0 --port 8000 --reload`), and a controls cheat‑sheet. Automated QA runs `cd defender/backend && pytest -q` to ensure backend correctness; frontend verification is manual but the code is fully functional. The overall architecture fits within a small repository, uses no build tools for the client, and targets 60 fps gameplay in modern browsers.",
+    "active_phase_id": "backend-setup",
+    "spec_summary": "The Defender Clone project delivers a browser‑based arcade shooter using a Python FastAPI backend and a vanilla‑JavaScript frontend. All source files live under the `defender/` directory. The backend serves static files, implements a minimal in‑memory high‑score API, and is launched with `uvicorn`. The frontend provides a fullscreen HTML5 canvas, CSS styling, and a collection of JavaScript modules that implement input handling, player ship behavior, bullet management, enemy spawning, humanoid logic, world scrolling, HUD rendering, and the main game loop with finite‑state screens (title, game, wave intro, death, game‑over). Unit tests for the backend are written with pytest and FastAPI's TestClient, covering static route serving, score posting, score retrieval, and high‑score updating rules. The full test suite can be executed from `defender/backend` via `pytest -q`. The README explains installation (`pip install -r backend/requirements.txt`), how to start the server, and the keyboard controls. The delivery is split into four phases: backend setup, backend score API, frontend scaffolding, and final complete game implementation, each with its own verification command. The final deliverable is a runnable game that can be accessed in a browser at `http://localhost:8000`, providing smooth 60 fps gameplay with neon‑styled graphics, scoring, lives, bombs, and wave progression, meeting all functional requirements described in the specification.",
     "min_architecture_bytes": 3200,
     "min_plan_bytes": 800,
     "min_implementation_file_bytes": 400,
