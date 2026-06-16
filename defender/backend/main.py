@@ -5,8 +5,8 @@ import os
 
 app = FastAPI()
 
-# Mount static files directory (serves files from defender/web)
-app.mount("/static", StaticFiles(directory="defender/web", html=True), name="static")
+# Mount static files directory (serves files from defender/frontend)
+app.mount("/static", StaticFiles(directory="defender/frontend", html=True), name="static")
 
 # In‑memory high‑score store
 _high_score = 0
@@ -31,7 +31,7 @@ async def root():
 @app.get("/score")
 async def get_score():
     """Return the current high‑score."""
-    return {"high_score": high_score}
+    return {"score": _high_score}
 
 @app.post("/score")
 async def update_score(request: Request):
