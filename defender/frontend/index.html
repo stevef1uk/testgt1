@@ -2,54 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Defender Clone</title>
+  <title>Defender Game</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Additional inline styles for better presentation */
-    body {
-      margin: 0;
-      background-color: #111;
-      color: #eee;
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    header {
-      width: 100%;
-      padding: 10px;
-      background: #222;
-      text-align: center;
-    }
-    h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-    #gameCanvas {
-      border: 2px solid #555;
-      margin-top: 20px;
-    }
-    footer {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #aaa;
-    }
-  </style>
 </head>
 <body>
-  <header>
-    <h1>Defender Game</h1>
-  </header>
-
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
   <!-- Game scripts -->
   <script src="game/renderer.js"></script>
   <script src="game/hud.js"></script>
   <script src="game/main.js"></script>
-
-  <footer>
-    <p>Use arrow keys to move, space to fire. Enjoy the classic Defender experience.</p>
-  </footer>
+  <script>
+    // Start the game once everything is loaded
+    window.addEventListener('load', () => {
+      if (window.GameMain && typeof window.GameMain.start === 'function') {
+        window.GameMain.start();
+      } else {
+        console.warn('GameMain.start not available');
+      }
+    });
+  </script>
 </body>
 </html>
