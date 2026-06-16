@@ -54,4 +54,4 @@ These controls are wired to the frontend JavaScript in `backend/static/app.js`.
 ## Notes
 
 - The application stores scores in an **in‑memory** dictionary (`ScoreStore`); no external database is required.
-- All project paths are prefixed with `defender/` as described in the architecture documentation.
+- All project paths are prefixed with `defender/`. This ensures consistency across the repository.ender/` as described in the architecture documentation.
