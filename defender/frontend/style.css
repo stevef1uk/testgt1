@@ -1,28 +1,54 @@
-/* Basic layout for the game */
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: #222;
-    color: #fff;
-    font-family: Arial, sans-serif;
+/* Global Styles — Dark Neon Theme */
+* {
+  box-sizing: border-box;
 }
-#game-container {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    margin: 0 auto;
-    top: 50%;
-    transform: translateY(-50%);
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000011;
+  overflow: hidden;
+  font-family: 'Courier New', Courier, monospace;
+  color: #00ff00;
 }
-#game-canvas {
-    display: block;
-    background: #000;
-}
+
+/* HUD bar */
 #hud {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 20px;
-    pointer-events: none;
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  padding: 6px 16px;
+  background-color: #000022;
+  border-bottom: 1px solid #00ff00;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+#hud span {
+  color: #00ff00;
+  text-shadow: 0 0 6px #00ff00;
+}
+
+#score  { color: #00ffff; text-shadow: 0 0 6px #00ffff; }
+#lives  { color: #ff4444; text-shadow: 0 0 6px #ff4444; }
+#bombs  { color: #ffff00; text-shadow: 0 0 6px #ffff00; }
+#wave   { color: #ff00ff; text-shadow: 0 0 6px #ff00ff; }
+
+/* Canvas Sizing */
+#game-canvas {
+  display: block;
+  background-color: #000011;
+  margin: 0 auto;
+  border: 1px solid #003300;
+  width: 900px;
+  height: 400px;
+}
+
+/* Container Styles */
+.container {
+  background-color: #000022;
+  padding: 10px;
+  border: 1px solid #00ff00;
 }
