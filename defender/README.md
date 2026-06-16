@@ -45,11 +45,15 @@ uvicorn defender.backend.main:app --reload --host 0.0.0.0 --port 8000
 
 The application will be accessible at `http://localhost:8000`.
 
+## Frontend
+
+The application serves a fullscreen HTML canvas at the root URL (`/`). The canvas is rendered by JavaScript modules located under `defender/frontend/`. Static assets (CSS, JavaScript) are served under the `/static/` path.
+
 ## Controls
 
 - **Stop**: Press `Ctrl+C` in the terminal where the server is running.
 - **Reload**: The `--reload` flag automatically restarts the server when source files change.
-- **Log level**: Adjust with `--log-level <level>` (e.g., `info`, `debug`).
+- **Log level**: Adjust with `--log-level <level>` (e.g., `info`, `debug`).ebug`).
 - **Graceful shutdown**: Send a `SIGTERM` signal; `uvicorn` will finish active requests before exiting.
 
 ## API Endpoints
