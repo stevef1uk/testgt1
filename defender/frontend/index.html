@@ -2,26 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Neon Game</title>
+  <title>Defender Clone</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-  <!-- Game modules -->
+  <!-- Game scripts -->
   <script src="game/renderer.js"></script>
   <script src="game/hud.js"></script>
   <script src="game/main.js"></script>
-
-  <script>
-    // Start the game once all scripts are loaded.
-    window.addEventListener('load', () => {
-      if (window.GameMain && typeof window.GameMain.start === 'function') {
-        window.GameMain.start();
-      } else {
-        console.error('GameMain.start not available.');
-      }
-    });
-  </script>
 </body>
 </html>
