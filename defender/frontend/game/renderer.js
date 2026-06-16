@@ -1,4 +1,5 @@
-// defender/frontend/game/renderer.js
+ // defender/frontend/game/renderer.js
+ // (Removed import; all utilities are defined within this file)
 // Canvas drawing helpers used by the game frontend.
 // Provides simple neon‑glow primitives, particle effects and sprite compositing.
 // Exposes a global `Renderer` object with a `renderFrame(ctx, state)` method
