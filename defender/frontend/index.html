@@ -4,13 +4,52 @@
   <meta charset="UTF-8">
   <title>Defender Clone</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Additional inline styles for better presentation */
+    body {
+      margin: 0;
+      background-color: #111;
+      color: #eee;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      width: 100%;
+      padding: 10px;
+      background: #222;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    #gameCanvas {
+      border: 2px solid #555;
+      margin-top: 20px;
+    }
+    footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Defender Game</h1>
+  </header>
+
   <canvas id="gameCanvas" width="800" height="600"></canvas>
 
   <!-- Game scripts -->
   <script src="game/renderer.js"></script>
   <script src="game/hud.js"></script>
   <script src="game/main.js"></script>
+
+  <footer>
+    <p>Use arrow keys to move, space to fire. Enjoy the classic Defender experience.</p>
+  </footer>
 </body>
 </html>

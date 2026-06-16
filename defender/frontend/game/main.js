@@ -1,4 +1,127 @@
-/* Helper wrappers for legacy utility functions – map to native DOM APIs */
+/* Main entry point for the Defender frontend game.
+ *
+ * This script sets up the canvas, wires the global Renderer and HUD objects,
+ * and runs a simple finite‑state‑machine driven animation loop.
+ *
+ * Expected companion modules (all under defender/frontend/game/):
+ *   - renderer.js – defines window.Renderer.renderFrame(ctx, state)
+ *   - hud.js      – defines window.HUD.render(ctx, state)
+ *   - input.js    – (optional) binds keyboard input to the game state
+ *   - player.js   – (optional) provides player helpers
+ *
+ * If any of the above modules are missing, the code still runs with
+ * no‑op fallbacks so the page can be inspected manually.
+ */
+
+(function () {
+  // ------------------------------------------------------------
+  // Canvas and rendering context
+  // ------------------------------------------------------------
+  const canvas = document.getElementById("gameCanvas");
+  if (!canvas) {
+    console.error("Canvas element with id 'gameCanvas' not found.");
+    return;
+  }
+  const ctx = canvas.getContext("2d");
+
+  // Resize canvas to fill the window.
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  // ------------------------------------------------------------
+  // Game state
+  // ------------------------------------------------------------
+  const state = {
+    score: 0,
+    lives: 3,
+    bombs: 3,
+    wave: 1,
+    // Optional: particles, player position, etc.
+  };
+
+  // ------------------------------------------------------------
+  // Finite‑state‑machine definitions
+  // ------------------------------------------------------------
+  const STATES = {
+    TITLE: "title",
+    INTRO: "intro",
+    PLAY: "play",
+    DEATH: "death",
+    GAMEOVER: "gameover",
+  };
+  let currentState = STATES.TITLE;
+
+  // ------------------------------------------------------------
+  // References to Renderer and HUD (fallback to no‑op stubs)
+  // ------------------------------------------------------------
+  const renderer = window.Renderer || {
+    renderFrame: function () { /* no‑op */ },
+  };
+  const hud = window.HUD || {
+    render: function () { /* no‑op */ },
+  };
+
+  // ------------------------------------------------------------
+  // State transition logic
+  // ------------------------------------------------------------
+  function transition() {
+    switch (currentState) {
+      case STATES.TITLE:
+        // Start game on any key press.
+        document.addEventListener(
+          "keydown",
+          () => { currentState = STATES.INTRO; },
+          { once: true }
+        );
+        break;
+      case STATES.INTRO:
+        // After a short delay, begin gameplay.
+        setTimeout(() => { currentState = STATES.PLAY; }, 1000);
+        break;
+      case STATES.PLAY:
+        // Gameplay would update state here.
+        break;
+      case STATES.DEATH:
+        state.lives--;
+        currentState = state.lives > 0 ? STATES.INTRO : STATES.GAMEOVER;
+        break;
+      case STATES.GAMEOVER:
+        // End of game – nothing to do.
+        break;
+    }
+  }
+
+  // ------------------------------------------------------------
+  // Main render loop
+  // ------------------------------------------------------------
+  function loop() {
+    transition();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    renderer.renderFrame(ctx, state);
+    hud.render(ctx, state);
+    if (currentState !== STATES.GAMEOVER) {
+      requestAnimationFrame(loop);
+    }
+  }
+
+  // ------------------------------------------------------------
+  // Public API – start the game
+  // ------------------------------------------------------------
+  function start() {
+    currentState = STATES.TITLE;
+    requestAnimationFrame(loop);
+  }
+
+  // Expose a global object for manual testing.
+  window.GameMain = {
+    start: start,
+    getState: () => ({ ...state, currentState }),
+  };
+})();
 function ElementById(id) { return document.getElementById(id); }
 function Canvas(id) { return document.getElementById(id); }  /* alias – not used */
 function Context(canvas) { return canvas.getContext('2d'); }

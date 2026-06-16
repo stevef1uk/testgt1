@@ -1,11 +1,11 @@
-/* Defender game UI styling - updated */
+/* Defender game UI styling – expanded for visual richness */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   background: #000;
   overflow: hidden;
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   color: #fff;
 }
 
@@ -14,24 +14,34 @@ canvas {
   display: block;
   margin: 0 auto;
   background: #111;
-  border: 2px solid #555;
+  border: 5px solid #555;
+  box-shadow: 0 0 10px #333;
 }
 
 /* HUD elements */
 .hud {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 0;
+  left: 0;
+  padding: 8px;
   font-size: 14px;
   color: #0f0;
 }
 
-/* Game over overlay */
+/* Game Over overlay */
 .gameover {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-2px, -2px);
   font-size: 32px;
   color: #f00;
+}
+
+/* Additional styling for the index page */
+footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #aaa;
 }
