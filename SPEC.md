@@ -1,3 +1,5 @@
+
+
 # Project Specification: Defender Clone (Web-Based) — Hands-Free Rig Edition
 
 > **Edits for hands-free `rig-flow` (vs your draft):**
@@ -58,13 +60,20 @@ delivery_phases:
       - defender/frontend/game/world.js
       - defender/frontend/game/hud.js
       - defender/frontend/game/renderer.js
-    qa_verify_command: "cd defender && npm install --ignore-scripts -q && npx playwright install chromium --with-deps -q 2>&1 | tail -n 5; npx playwright test --reporter=list"
+    qa_verify_command: "cd defender && npm install --ignore-scripts -q"
     depends_on: [backend]
-  # Optional smoke combines both — QA runs only the active phase's command, so backend stays fast
+  - id: integration-test
+    title: integration-test
+    required_files:
+      - defender/package.json
+      - defender/playwright.config.js
+      - defender/tests/e2e/game.spec.js
+    qa_verify_command: "cd defender && docker-compose run --rm playwright"
+    depends_on: [frontend]
 active_phase_id: backend
 ```
 
-**Test runner:** `backend` → `pytest` (httpx/TestClient). `frontend` → `playwright` (chromium only, no UI). Polecat must keep both green; `bd close` requires the file for that bead exists + its phase's `qa_verify_command` passes.
+**Test runner:** `backend` → `pytest` (httpx/TestClient). `frontend` → `npm install` only (Playwright moves to the `integration-test` phase). `integration-test` → `docker-compose run --rm playwright` (chromium only, no UI, in the shared `playwright-go-test:latest` runner). Polecat must keep each phase green; `bd close` requires the file for that bead exists + its phase's `qa_verify_command` passes.
 
 **Backend start (from `defender/backend/`):** `uvicorn main:app --host 0.0.0.0 --port 8000 --reload`
 **Frontend serve:** via backend `GET /` and `GET /static/{path}` — no separate dev server.
@@ -122,8 +131,10 @@ defender/
 │       ├── world.js         # Scrolling/wrapping world, terrain, parallax stars
 │       ├── hud.js           # Score, wave, lives, bombs, minimap
 │       └── renderer.js      # Canvas draw (neon style, particles)
+├── docker-compose.yml       # Playwright + app compose (host-run kind)
+├── Dockerfile.playwright    # Playwright stage for E2E tests
 ├── package.json             # npm: playwright + http-server helper (no build step)
-├── playwright.config.js     # webServer: uvicorn on 8000, baseURL http://localhost:8000
+├── playwright.config.js     # webServer: uvicorn on 8000, baseURL http://host.docker.internal:8000
 ├── tests/
 │   └── e2e/
 │       └── game.spec.js     # Playwright: title → game, move/fire, score HUD changes
@@ -171,98 +182,3 @@ Start command (from `defender/backend/`): `uvicorn main:app --host 0.0.0.0 --por
 ## Polecat implementation requirements
 
 Implement **real, runnable code** — not placeholders (`console.log` only, empty HTML, `pass`, or shell commands pasted into `.py` files). Each bead title path must match a file below.
-
-### Per-file minimum acceptance
-
-**`backend/requirements.txt`** — lines: `fastapi`, `uvicorn[standard]`, `httpx`, `pytest` (pins optional).
-
-**`backend/main.py`** — FastAPI app: routes above, `StaticFiles` or equivalent for `../frontend`, in-memory high score dict. Must pass `backend/tests/`.
-
-**`backend/tests/test_api.py`** — `TestClient`: GET `/` returns 200 and HTML containing `canvas` or game root.
-
-**`backend/tests/test_score.py`** — POST valid/invalid score, GET default and after POST, high score only increases when higher.
-
-**`package.json`** — `{ "type": "module", "scripts": { "test": "playwright test" }, "devDependencies": { "@playwright/test": "^1.44.0" } }` — no bundler, no build step. `npm install --ignore-scripts` must succeed offline after first fetch.
-
-**`playwright.config.js`** — `webServer: { command: "python3 -m uvicorn backend.main:app --host 127.0.0.1 --port 8000", cwd: "./", timeout: 30000, reuseExistingServer: true }`, `use: { baseURL: "http://127.0.0.1:8000" }`, `projects: [{ name: "chromium", use: { browserName: "chromium" } }]`, `timeout: 30000`. Must NOT require `npm run build`.
-
-**`tests/e2e/game.spec.js`** — at least 2 tests: (1) `GET /` loads and `canvas` is visible + title screen text; (2) start game via `Enter`/`Space`, assert HUD score element exists and keyboard input does not throw. Keep deterministic — no `waitForTimeout` > 2s, use `toBeVisible()` and `keyboard.press()`.
-
-**`frontend/index.html`** — Fullscreen canvas, loads `style.css` and game scripts in order (`input` → … → `main.js`), hidden screens or overlays for title/game over.
-
-**`frontend/style.css`** — Dark background, positions canvas and HUD regions.
-
-**`frontend/game/input.js`** — Key state map for all controls listed above.
-
-**`frontend/game/player.js`** — Ship position, velocity, bounds, fire cooldown, 3 lives, smart bomb count, facing for bullet direction.
-
-**`frontend/game/bullets.js`** — Create/update/remove bullets; max count; off-screen cull.
-
-**`frontend/game/enemies.js`** — Spawn tables per wave; types: Lander, Mutant (when no humanoids), Bomber, Swarmer, Baiter (if wave too long); basic movement toward targets.
-
-**`frontend/game/humanoids.js`** — 10 humanoids on terrain; abduction state; fall + rescue collision with player.
-
-**`frontend/game/world.js`** — World width ≈ 5× viewport; horizontal wrap; terrain height map per wave; parallax stars.
-
-**`frontend/game/hud.js`** — Draw score, wave, lives, bombs; minimap strip showing entities.
-
-**`frontend/game/renderer.js`** — Draw terrain, entities, particles; neon colors.
-
-**`frontend/game/main.js`** — Wire modules: `requestAnimationFrame` loop, screen FSM (title/game/wave/death/gameover), wave progression, call renderer/hud, **≥200 lines of real logic** (not comments only).
-
-**`README.md`** — How to install (`pip install -r backend/requirements.txt`), run uvicorn, open browser URL, controls table. Also note `npm install && npx playwright test` for QA.
-
-### Verification before `bd close`
-
-From `defender/backend/` (with venv if used):
-
-```bash
-python3 -m pip install -r requirements.txt -q
-python3 -m pytest -q
-```
-
-From `defender/` (frontend gate, runs only on `frontend` phase):
-
-```bash
-npm install --ignore-scripts -q
-npx playwright install chromium --with-deps -q 2>&1 | tail -n 5
-npx playwright test --reporter=list
-```
-
-From browser (manual): backend running, play title → game, move and fire, score changes.
-
-Do **not** close implementation beads until the file for that bead exists, is non-stub, and the *active phase's* `qa_verify_command` passes (backend files → `pytest`, frontend files → `playwright`).
-
-## Testing scope for automated rig QA
-
-**Required for workflow pass:**
-- `backend` phase: `pytest -q` from `defender/backend/` (all tests green).
-- `frontend` phase: `playwright test` from `defender/` (chromium, both specs green). QA runs only the *active* phase's command, so backend stays fast until frontend lands.
-
-### Backend pytest cases (must exist)
-
-- GET `/` → 200, HTML
-- POST `/score` valid → 200; invalid → 422
-- GET `/score` after POST returns stored values; default zeros when empty
-- High score only updates when new score is greater
-
-### Frontend Playwright cases (must exist, deterministic)
-
-- `tests/e2e/game.spec.js` — title canvas visible; pressing `Enter` transitions to game screen; firing/collecting does not throw; HUD score element updates.
-- No external network, no `waitForTimeout` flakes, webServer starts `uvicorn` on 8000.
-
-## Out of scope
-
-- Mobile/touch, multiplayer, persistent leaderboards, accounts
-- Sound/music (optional)
-- External game engines (Phaser, etc.)
-
-## Success criteria (definition of done)
-
-1. `uvicorn` serves game; browser play without console errors
-2. Player movement, firing, enemies spawning, humanoid abduction/rescue recognizable
-3. HUD + minimap reflect state
-4. Score and lives behave per table; game over and restart work
-5. `pytest` in `defender/backend/` passes **and** `playwright` in `defender/` passes
-6. All paths in layout exist with substantive code (no stub-only files)
-
